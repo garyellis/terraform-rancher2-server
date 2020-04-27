@@ -74,49 +74,39 @@ module "lb_dns" {
 resource "kubernetes_namespace" "cattle_system" {
   metadata {
     name        = "cattle-system"
-    annotations = {}
-    labels      = {}
+    annotations = var.annotations
+    labels      = var.labels
   }
 }
 
-## https://rancher.com/docs/rancher/v2.x/en/installation/options/chart-options/
+
+locals {
+  ## https://rancher.com/docs/rancher/v2.x/en/installation/options/chart-options/
+  values_yaml = <<EOF
+---
+rancherImage:  "${var.rancher_image}"
+rancherImageTag: "${var.rancher_image_tag}"
+hostname: "${format("%s.%s", var.dns_name, var.dns_domain_name)}"
+privateCA: "${var.private_ca}"
+systemDefaultRegistry: "${var.system_default_registry}"
+useBundledSystemChart: "${var.use_bundled_system_chart}"
+ingress:
+  tls:
+    source: "${var.ingress_tls_source}"
+
+EOF
+
+}
+
 resource "helm_release" "rancher" {
-  repository = ! var.use_latest_chart_repo ? data.helm_repository.rancher_stable.metadata[0].name : data.helm_repository.rancher_latest.metadata[0].name
-  name       = "rancher"
-  chart      = "rancher"
-  version    = var.rancher_chart_version
-  namespace  = "cattle-system"
+  repository   = ! var.use_latest_chart_repo ? data.helm_repository.rancher_stable.metadata[0].name : data.helm_repository.rancher_latest.metadata[0].name
+  name         = "rancher"
+  chart        = "rancher"
+  version      = var.rancher_chart_version
+  namespace    = "cattle-system"
+  reuse_values = true
 
-  set {
-    name  = "rancherImage"
-    value = var.rancher_image
-  }
-
-  set {
-    name  = "rancherImageTag"
-    value = var.rancher_image_tag
-  }
-
-  set {
-    name  = "hostname"
-    value = format("%s.%s", var.dns_name, var.dns_domain_name)
-  }
-
-  set {
-    name  = "ingress.tls.source"
-    value = "rancher"
-    #value = "secret"
-  }
-
-#  set {
-#    name  = "privateCA"
-#    value = "true"
-#  }
-
-  set {
-    name  = "useBundledSystemChart"
-    value = var.use_bundled_system_chart
-  }
+  values = list(local.values_yaml)
 
   depends_on = [
     null_resource.module_depends_on,

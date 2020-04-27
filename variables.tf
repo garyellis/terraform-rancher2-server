@@ -1,7 +1,7 @@
 variable "module_depends_on" {
   description = "one or more modules to wait for before converging this module"
-  type = list(string)
-  default = []
+  type        = list(string)
+  default     = []
 }
 
 variable "api_server_url" {
@@ -70,6 +70,18 @@ variable "rancher_chart_version" {
   default = "v2.3.6"
 }
 
+variable "annotations" {
+  description = "a map of annotationss applied to cattle-system namespace"
+  type        = map(string)
+  default     = {}
+}
+
+variable "labels" {
+  description = "a map of labels applied to resources"
+  type        = map(string)
+  default     = {}
+}
+
 variable "rancher_image" {
   type    = string
   default = "rancher/rancher"
@@ -80,13 +92,31 @@ variable "rancher_image_tag" {
   default = "v2.3.6"
 }
 
+variable "system_default_registry" {
+  description = "Rancher server will pull from this registry when provisioning clusters"
+  type        = string
+  default     = null
+}
+
 variable "use_bundled_system_chart" {
   description = "enable when rancher server does not have internet access"
   type        = bool
   default     = false
 }
 
+variable "ingress_tls_source" {
+  description = "the rancher server ingress source. Can be rancher, letsEncrypt or secret"
+  type        = string
+  default     = "rancher"
+}
+
+variable "private_ca" {
+  description = "when rancher server cert is signed by private ca, set the tls ca in rancher namespace"
+  type        = bool
+  default     = false
+}
+
 variable "admin_password" {
-  type = string
+  type    = string
   default = "welcome1"
 }
