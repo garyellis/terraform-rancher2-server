@@ -3,7 +3,7 @@ Deploy rancher server on an kubernetes cluster. This module implements the follo
 
 * create the cattle-system namespace
 * deploy the rancher server helm chart
-* set the admin password
+* set the rancher admin password
 
 ## Requirements
 
@@ -37,7 +37,7 @@ terraform v0.12
 | ingress\_tls\_source | the rancher server ingress source. Can be rancher, letsEncrypt or secret | `string` | `"rancher"` | no |
 | labels | a map of labels applied to resources | `map(string)` | `{}` | no |
 | module\_depends\_on | one or more modules to wait for before converging this module | `list(string)` | `[]` | no |
-| private\_ca | when rancher server cert is signed by private ca, set the tls ca in rancher namespace | `bool` | `false` | no |
+| private\_ca | when rancher server cert is signed by private ca, set the tls ca in rancher namespace | `string` | `"false"` | no |
 | rancher\_chart\_version | n/a | `string` | `"v2.3.6"` | no |
 | rancher\_image | n/a | `string` | `"rancher/rancher"` | no |
 | rancher\_image\_tag | n/a | `string` | `"v2.3.6"` | no |

@@ -1,3 +1,11 @@
+provider "aws" {
+  ignore_tags {
+    key_prefixes = [
+      "kubernetes.io/cluster/"
+    ]
+  }
+}
+
 module "aws-infrastructure" {
   source = "github.com/garyellis/terraform-aws-k8s-infrastructure"
 
@@ -34,17 +42,56 @@ module "aws-infrastructure" {
 }
 
 module "k8s_cluster" {
-  source = "../"
+  source = "github.com/garyellis/terraform-rke-cluster"
 
-  cluster_name                = var.name
-  etcd_node_addresses         = module.aws-infrastructure.etcd_node_ips
-  controlplane_node_addresses = module.aws-infrastructure.controlplane_node_ips
-  worker_node_addresses       = module.aws-infrastructure.worker_node_ips
-  apiserver_sans              = list(module.aws-infrastructure.apiserver_fqdn)
-  ssh_user                    = var.ssh_user
-  ssh_key_path                = var.ssh_key_path
+  cluster_name                         = var.name
+  etcd_node_addresses                  = module.aws-infrastructure.etcd_node_private_dns
+  etcd_node_internal_addresses         = module.aws-infrastructure.etcd_node_ips
+  controlplane_node_addresses          = module.aws-infrastructure.controlplane_node_private_dns
+  controlplane_node_internal_addresses = module.aws-infrastructure.controlplane_node_ips
+  worker_node_addresses                = module.aws-infrastructure.worker_node_private_dns
+  worker_node_internal_addresses       = module.aws-infrastructure.worker_node_ips
+  apiserver_sans                       = list(module.aws-infrastructure.apiserver_fqdn)
+  ssh_user                             = var.ssh_user
+  ssh_key_path                         = var.ssh_key_path
+  labels                               = var.tags
 }
 
-module "" {
+module "k8s_addons_terraform_sa" {
+  source = "github.com/garyellis/terraform-k8s-addons//terraform-sa"
 
+  api_server_url = module.aws-infrastructure.apiserver_host
+  client_cert    = module.k8s_cluster.client_cert
+  client_key     = module.k8s_cluster.client_key
+  ca_crt         = module.k8s_cluster.ca_crt
+}
+
+module "k8s_addons_terraform_cert_manager" {
+  source = "github.com/garyellis/terraform-k8s-addons//cert-manager"
+
+  api_server_url       = module.aws-infrastructure.apiserver_host
+  client_cert          = module.k8s_cluster.client_cert
+  client_key           = module.k8s_cluster.client_key
+  ca_crt               = module.k8s_cluster.ca_crt
+  service_account_name = module.k8s_addons_terraform_sa.name
+}
+
+module "rancher_server" {
+  source = "../"
+
+  api_server_url = module.aws-infrastructure.apiserver_host
+  client_cert    = module.k8s_cluster.client_cert
+  client_key     = module.k8s_cluster.client_key
+  ca_crt         = module.k8s_cluster.ca_crt
+
+  create_route53_record = true
+  dns_zone_id           = var.dns_zone_id
+  dns_domain_name       = var.dns_domain_name
+  dns_name              = format("%s-rancher", var.name)
+  ingress_lb_zone_id    = module.aws-infrastructure.ingress_lb_zone_id
+  ingress_lb_dns_name   = module.aws-infrastructure.ingress_lb_dns_name
+
+  module_depends_on = [
+    module.k8s_addons_terraform_cert_manager.chart_metadata[0].name
+  ]
 }

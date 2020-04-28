@@ -84,15 +84,17 @@ locals {
   ## https://rancher.com/docs/rancher/v2.x/en/installation/options/chart-options/
   values_yaml = <<EOF
 ---
-rancherImage:  "${var.rancher_image}"
-rancherImageTag: "${var.rancher_image_tag}"
-hostname: "${format("%s.%s", var.dns_name, var.dns_domain_name)}"
-privateCA: "${var.private_ca}"
+rancherImage:  ${var.rancher_image}
+rancherImageTag: ${var.rancher_image_tag}
+hostname: ${format("%s.%s", var.dns_name, var.dns_domain_name)}
+privateCA: ${var.private_ca}
+%{ if var.use_bundled_system_chart }
 systemDefaultRegistry: "${var.system_default_registry}"
+%{ endif ~}
 useBundledSystemChart: "${var.use_bundled_system_chart}"
 ingress:
   tls:
-    source: "${var.ingress_tls_source}"
+    source: ${var.ingress_tls_source}
 
 EOF
 

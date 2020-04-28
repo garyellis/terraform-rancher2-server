@@ -112,8 +112,8 @@ variable "ingress_tls_source" {
 
 variable "private_ca" {
   description = "when rancher server cert is signed by private ca, set the tls ca in rancher namespace"
-  type        = bool
-  default     = false
+  type        = string
+  default     = "false"
 }
 
 variable "admin_password" {
