@@ -80,6 +80,23 @@ resource "kubernetes_namespace" "cattle_system" {
 }
 
 
+## additional trusted CAs
+resource "kubernetes_secret" "tls_ca_additional" {
+  count = length(var.tls_ca_additional) > 0 ? 1 : 0
+  metadata {
+    name      = "tls-ca-additional"
+    namespace = "cattle-system"
+  }
+
+  data = {
+    "ca-additional" = file(var.tls_ca_additional)
+  }
+
+  depends_on = [
+    kubernetes_namespace.cattle_system
+  ]
+}
+
 locals {
   ## https://rancher.com/docs/rancher/v2.x/en/installation/options/chart-options/
   values_yaml = <<EOF
@@ -88,6 +105,9 @@ rancherImage:  ${var.rancher_image}
 rancherImageTag: ${var.rancher_image_tag}
 hostname: ${format("%s.%s", var.dns_name, var.dns_domain_name)}
 privateCA: ${var.private_ca}
+%{if length(var.tls_ca_additional) > 0}
+additionalTrustedCAs: true
+%{endif~}
 %{if var.use_bundled_system_chart}
 systemDefaultRegistry: "${var.system_default_registry}"
 %{endif~}

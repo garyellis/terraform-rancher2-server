@@ -121,6 +121,12 @@ variable "admin_password" {
   default = "welcome1"
 }
 
+variable "tls_ca_additional" {
+  description = "The local path to an additional trusted cas file"
+  type        = string
+  default     = ""
+}
+
 variable "catalogs" {
   description = "a list of helm repo catalogs added to rancher server"
   type        = list(map(string))

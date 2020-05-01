@@ -45,6 +45,7 @@ terraform v0.12
 | rancher\_server\_chart\_latest | n/a | `string` | `"https://releases.rancher.com/server-charts/latest"` | no |
 | rancher\_server\_chart\_stable | n/a | `string` | `"https://releases.rancher.com/server-charts/stable"` | no |
 | system\_default\_registry | Rancher server will pull from this registry when provisioning clusters | `string` | `null` | no |
+| tls\_ca\_additional | The local path to an additional trusted cas file | `string` | `""` | no |
 | use\_bundled\_system\_chart | enable when rancher server does not have internet access | `bool` | `false` | no |
 | use\_latest\_chart\_repo | n/a | `bool` | `false` | no |
 
