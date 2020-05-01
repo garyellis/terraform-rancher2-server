@@ -129,6 +129,7 @@ resource "rancher2_bootstrap" "admin" {
 resource "rancher2_catalog" "catalogs" {
   count = length(var.catalogs)
 
+  provider    = rancher2.admin
   name        = lookup(var.catalogs[count.index], "name")
   description = lookup(var.catalogs[count.index], "description", null)
   url         = lookup(var.catalogs[count.index], "url")
