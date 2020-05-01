@@ -89,7 +89,7 @@ resource "kubernetes_secret" "tls_ca_additional" {
   }
 
   data = {
-    "ca-additional" = file(var.tls_ca_additional)
+    "ca-additional.pem" = file(var.tls_ca_additional)
   }
 
   depends_on = [
