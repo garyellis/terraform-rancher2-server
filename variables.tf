@@ -120,3 +120,9 @@ variable "admin_password" {
   type    = string
   default = "welcome1"
 }
+
+variable "catalogs" {
+  description = "a list of helm repo catalogs added to rancher server"
+  type        = list(map(string))
+  default     = []
+}

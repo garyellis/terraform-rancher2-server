@@ -26,6 +26,7 @@ terraform v0.12
 | annotations | a map of annotationss applied to cattle-system namespace | `map(string)` | `{}` | no |
 | api\_server\_url | the kube apiserver url | `string` | n/a | yes |
 | ca\_crt | the apiserver cacert | `string` | n/a | yes |
+| catalogs | a list of helm repo catalogs added to rancher server | `list(map(string))` | `[]` | no |
 | client\_cert | the apiserver client certificate | `string` | n/a | yes |
 | client\_key | the apiserver client key | `string` | n/a | yes |
 | create\_route53\_record | n/a | `bool` | n/a | yes |

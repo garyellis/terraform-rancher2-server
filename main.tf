@@ -88,9 +88,9 @@ rancherImage:  ${var.rancher_image}
 rancherImageTag: ${var.rancher_image_tag}
 hostname: ${format("%s.%s", var.dns_name, var.dns_domain_name)}
 privateCA: ${var.private_ca}
-%{ if var.use_bundled_system_chart }
+%{if var.use_bundled_system_chart}
 systemDefaultRegistry: "${var.system_default_registry}"
-%{ endif ~}
+%{endif~}
 useBundledSystemChart: "${var.use_bundled_system_chart}"
 ingress:
   tls:
@@ -124,4 +124,15 @@ resource "rancher2_bootstrap" "admin" {
   depends_on = [
     helm_release.rancher
   ]
+}
+
+resource "rancher2_catalog" "catalogs" {
+  count = length(var.catalogs)
+
+  name        = lookup(var.catalogs[count.index], "name")
+  description = lookup(var.catalogs[count.index], "description", null)
+  url         = lookup(var.catalogs[count.index], "url")
+  username    = lookup(var.catalogs[count.index], "username", null)
+  password    = lookup(var.catalogs[count.index], "password", null)
+  version     = lookup(var.catalogs[count.index], "version", "helm_v3")
 }
